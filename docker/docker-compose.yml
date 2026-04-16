@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ecommerce-postgres
+    environment:
+      POSTGRES_USER: ucommerce
+      POSTGRES_PASSWORD: admin1234
+      POSTGRES_DB: ecommerce-shop
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: ecommerce-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # LocalStack - AWS Services Emulation
+  localstack:
+    image: localstack/localstack:latest
+    container_name: ecommerce-localstack
+    environment:
+      - SERVICES: s3,sqs
+      - DEFAULT_REGION: us-east-1
+      - DEBUG: 1
+      - DATA_DIR: /tmp/localstack/data
+      - AWS_ACCESS_KEY_ID: test
+      - AWS_ACCESS_KEY_ID: test
+    ports:
+      - "4566:4566"
+      # - "4571:4571"
+    volumes:
+      - localstack_data:/tmp/localstack
+    healthcheck:
+      test: ["CMD", "awslocal", "kinesis", "list-streams"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Application API
+  # api:
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/Dockerfile
+  #   container_name: ecommerce-api
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: postgres
+  #     DB_PASSWORD: password
+  #     DB_NAME: ecommerce-shop
+  #     REDIS_URL: redis://redis:6379
+  #     AWS_ENDPOINT_URL: http://localstack:4566
+  #     AWS_ACCESS_KEY_ID: test
+  #     AWS_SECRET_ACCESS_KEY: test
+  #     AWS_DEFAULT_REGION: us-east-1
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     localstack:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:
+  localstack_data:

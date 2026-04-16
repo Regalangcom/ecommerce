@@ -1,0 +1,48 @@
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+
+# test binary
+*.test
+
+
+# output coverage
+*.out
+
+# dependency directories
+vendor/
+
+
+# go workspace variable
+go.work
+
+
+# env variable 
+.env
+
+
+# IDE 
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+.DB_Store 
+Thumbs.db 
+
+# uploads
+uploads/
+
+# database 
+*.db 
+*.sqlite 
+
+# log
+
+*.log
