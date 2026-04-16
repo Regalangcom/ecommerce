@@ -17,7 +17,7 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to load configuration")
 	}
 
-	db, err := database.New(cfg.Database)
+	db, err := database.New(&cfg.Database)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
@@ -27,7 +27,8 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to get database instance")
 	}
 
-	defer mainDB.Close()
+	// defer mainDB.Close()
+	defer func() { _ = mainDB.Close() }()
 	gin.SetMode(cfg.Server.GinDebug)
 
 	log.Info().Msg(fmt.Sprintf("starting server on port %s", cfg.Server.Port))
