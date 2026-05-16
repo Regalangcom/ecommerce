@@ -1,0 +1,58 @@
+package server
+
+import (
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/regalangcom/go-shop-api/internal/models"
+	"github.com/regalangcom/go-shop-api/internal/utils"
+)
+
+func (s *Server) AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			utils.UnauthorizedResponse(c, "Authorization header require")
+			c.Abort()
+			return
+		}
+
+		tokenParts := strings.Split(authHeader, " ")
+		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+			utils.UnauthorizedResponse(c, "Invalid authorization header format")
+			c.Abort()
+			return
+		}
+
+		claims, err := utils.ValidateToken(tokenParts[1], s.config.JWT.JwtSecret)
+		if err != nil {
+			utils.UnauthorizedResponse(c, "Invalid or expired token")
+			c.Abort()
+			return
+		}
+
+		c.Set("userID", claims.UserID)
+		c.Set("email", claims.Email)
+		c.Set("role", claims.Role)
+
+		c.Next()
+	}
+}
+
+func (s *Server) AdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists || role != "admin" {
+			utils.UnauthorizedResponse(c, "Admin access required")
+			c.Abort()
+			return
+		}
+		if role != string(models.UserRoleAdmin) {
+			utils.ForbiddenResponse(c, "Forbidden")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
