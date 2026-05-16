@@ -73,3 +73,34 @@ func (s *Server) Logout(c *gin.Context) {
 
 	utils.CreateResponse(c, "User logged out successfully", nil)
 }
+
+func (s *Server) GetProfile(c *gin.Context) {
+
+	userID := c.GetUint("user_id")
+	userService := services.NewUserService(s.db)
+	profile, err := userService.GetProfile(userID)
+
+	if err != nil {
+		utils.InternalServerErrorResponse(c, "Failed to get user profile", err)
+		return
+	}
+	utils.CreateResponse(c, "User profile retrieved successfully", profile)
+}
+
+func (s *Server) UpdateProfile(c *gin.Context) {
+	userID := c.GetUint("user_id")
+
+	var req dto.UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.BadRequestResponse(c, "Invalid request body", err)
+		return
+	}
+
+	userService := services.NewUserService(s.db)
+	profile, err := userService.UpdateProfile(userID, &req)
+	if err != nil {
+		utils.InternalServerErrorResponse(c, "Failed to update user profile", err)
+		return
+	}
+	utils.CreateResponse(c, "User profile updated successfully", profile)
+}

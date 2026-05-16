@@ -32,9 +32,9 @@ func (s *Server) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("userID", claims.UserID)
-		c.Set("email", claims.Email)
-		c.Set("role", claims.Role)
+		c.Set("user_id", claims.UserID)
+		c.Set("user_email", claims.Email)
+		c.Set("user_role", claims.Role)
 
 		c.Next()
 	}
@@ -42,7 +42,7 @@ func (s *Server) AuthMiddleware() gin.HandlerFunc {
 
 func (s *Server) AdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		role, exists := c.Get("role")
+		role, exists := c.Get("user_role")
 		if !exists || role != "admin" {
 			utils.UnauthorizedResponse(c, "Admin access required")
 			c.Abort()
