@@ -34,6 +34,18 @@ func (s *Server) SetupRoute() *gin.Engine {
 	// define routes
 	r.GET("/health", s.healthCheck)
 
+	// auth route
+	api := r.Group("/api/v1")
+	{
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", s.Register)
+			auth.POST("/login", s.Login)
+			auth.POST("/refresh", s.RefreshToken)
+			auth.POST("/logout", s.Logout)
+		}
+	}
+
 	return r
 }
 
