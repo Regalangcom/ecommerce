@@ -17,7 +17,7 @@ func (s *Server) Register(c *gin.Context) {
 	authService := services.NewAuthService(s.db, s.config)
 	r, err := authService.Register(&req)
 	if err != nil {
-		utils.InternalServerErrorResponse(c, "Failed to register user", err)
+		utils.BadRequestResponse(c, "Failed to register user", err)
 		return
 	}
 

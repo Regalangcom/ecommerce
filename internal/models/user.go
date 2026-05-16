@@ -37,6 +37,6 @@ type RefreshToken struct {
 	UserID    uint           `json:"user_id" gorm:"not null"`
 	Token     string         `json:"token" gorm:"not null"`
 	ExpiresAt time.Time      `json:"expires_at" gorm:"not null"`
-	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }

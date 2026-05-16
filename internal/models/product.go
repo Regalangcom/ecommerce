@@ -30,6 +30,7 @@ type Product struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 
+	CategoryID uint           `json:"category_id"`
 	Category   Category       `json:"category"`
 	Images     []ProductImage `json:"images"`
 	OrderItems []OrderItem    `json:"-"`
