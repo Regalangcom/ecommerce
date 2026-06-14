@@ -19,10 +19,10 @@ type PaginatedResponse struct {
 }
 
 type PaginatedMeta struct {
-	Page       string `json:"status"`
-	Limit      string `json:"message,omitempty"`
-	Total      int64  `json:"total_items"`
-	TotalPages int    `json:"total_pages"`
+	Page       int   `json:"page"`
+	Limit      int   `json:"limit"`
+	Total      int64 `json:"total_items"`
+	TotalPages int   `json:"total_pages"`
 }
 
 func SuccessResponse(c *gin.Context, message string, data interface{}) {
