@@ -14,8 +14,8 @@ func (s *Server) Register(c *gin.Context) {
 		return
 	}
 
-	authService := services.NewAuthService(s.db, s.config)
-	r, err := authService.Register(&req)
+	// authService := services.NewAuthService(s.db, s.config)
+	r, err := s.authService.Register(&req)
 	if err != nil {
 		utils.BadRequestResponse(c, "Failed to register user", err)
 		return
@@ -31,8 +31,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	authService := services.NewAuthService(s.db, s.config)
-	r, err := authService.Login(&req)
+	r, err := s.authService.Login(&req)
 	if err != nil {
 		utils.InternalServerErrorResponse(c, "Failed to login user", err)
 		return
@@ -48,8 +47,7 @@ func (s *Server) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	authService := services.NewAuthService(s.db, s.config)
-	r, err := authService.RefreshToken(&req)
+	r, err := s.authService.RefreshToken(&req)
 	if err != nil {
 		utils.InternalServerErrorResponse(c, "Failed to refresh token", err)
 		return
@@ -65,8 +63,7 @@ func (s *Server) Logout(c *gin.Context) {
 		return
 	}
 
-	authService := services.NewAuthService(s.db, s.config)
-	if err := authService.Logout(req.RefreshToken); err != nil {
+	if err := s.authService.Logout(req.RefreshToken); err != nil {
 		utils.InternalServerErrorResponse(c, "Failed to logout user", err)
 		return
 	}
@@ -77,8 +74,7 @@ func (s *Server) Logout(c *gin.Context) {
 func (s *Server) GetProfile(c *gin.Context) {
 
 	userID := c.GetUint("user_id")
-	userService := services.NewUserService(s.db)
-	profile, err := userService.GetProfile(userID)
+	profile, err := s.userService.GetProfile(userID)
 
 	if err != nil {
 		utils.InternalServerErrorResponse(c, "Failed to get user profile", err)

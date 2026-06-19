@@ -14,6 +14,7 @@ import (
 	"github.com/regalangcom/go-shop-api/internal/database"
 	"github.com/regalangcom/go-shop-api/internal/logger"
 	"github.com/regalangcom/go-shop-api/internal/server"
+	"github.com/regalangcom/go-shop-api/internal/services"
 )
 
 func main() {
@@ -38,7 +39,12 @@ func main() {
 	defer func() { _ = mainDB.Close() }()
 	gin.SetMode(cfg.Server.GinDebug)
 
-	srv := server.New(cfg, db, &log)
+	// initialize services after you add isolation service in the type server for the file server.go
+	authService := services.NewAuthService(db, cfg)
+	productService := services.NewProductService(db)
+	userService := services.NewUserService(db)
+
+	srv := server.New(cfg, db, &log, authService, productService, userService)
 	router := srv.SetupRoute()
 
 	httpServer := &http.Server{
