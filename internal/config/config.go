@@ -45,8 +45,10 @@ type AwsConfig struct {
 }
 
 type UploadConfig struct {
-	Region      string
-	MaxFileSize int64
+	Region         string
+	MaxFileSize    int64
+	Path           string
+	UploadProvider string
 }
 
 func Load() (*Config, error) {
@@ -61,15 +63,16 @@ func Load() (*Config, error) {
 	config := &Config{
 		Server: ServerConfig{
 			Port:     getEnv("APP_PORT", "8080"),
-			GinDebug: getEnv("APP_GIN_MODE", "Debug"),
+			GinDebug: getEnv("APP_GIN_MODE", "debug"),
 		},
 		Database: DatabaseConfig{
 			DBhost:     getEnv("DB_HOST", "localhost"),
 			DBport:     dbPort,
 			DBuser:     getEnv("DB_USER", "ucommerce"),
 			DBpassword: getEnv("DB_PASSWORD", "admin1234"),
-			DBname:     getEnv("DB_NAME", "ecommerce-shop"),
-			DBsslmode:  getEnv("DB_SSL_MODE", "disable"),
+			// DBpassword: getEnv("DB_PASSWORD", "password"),
+			DBname:    getEnv("DB_NAME", "ecommerce-shop"),
+			DBsslmode: getEnv("DB_SSL_MODE", "disable"),
 		},
 		JWT: JwtConfig{
 			JwtSecret:    getEnv("JWT_SECRET", "your-secret-key-here"),
@@ -80,12 +83,14 @@ func Load() (*Config, error) {
 			Region:          getEnv("AWS_DEFAULT_REGION", "us-east-1"),
 			AccessKeyID:     getEnv("AWS_ACCESS_KEY_ID", "test"),
 			SecretAccessKey: getEnv("AWS_SECRET_ACCESS_KEY", "test"),
-			S3Bucket:        getEnv("S3_BUCKET", "ecommerce-bucket"),
+			S3Bucket:        getEnv("S3_BUCKET", "ecommerce-images-bucket"),
 			S3Endpoint:      getEnv("AWS_ENDPOINT_URL", "http://localhost:4566"),
 		},
 		Upload: UploadConfig{
-			Region:      getEnv("AWS_DEFAULT_REGION", "us-east-1"),
-			MaxFileSize: maxUploadSize,
+			Region:         getEnv("AWS_DEFAULT_REGION", "us-east-1"),
+			MaxFileSize:    maxUploadSize,
+			Path:           getEnv("UPLOAD_PATH", "./uploads"),
+			UploadProvider: getEnv("UPLOAD_PROVIDER", "local"), // or "s3"
 		},
 	}
 

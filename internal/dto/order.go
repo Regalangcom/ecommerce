@@ -17,10 +17,10 @@ type CartResponse struct {
 }
 
 type CartItemResponse struct {
-	ID       uint    `json:"product_id"`
-	Product  string  `json:"product_name"`
-	Quantity int     `json:"quantity"`
-	SubTotal float64 `json:"subtotal"`
+	ID       uint            `json:"product_id"`
+	Product  ProductResponse `json:"product"`
+	Quantity int             `json:"quantity"`
+	SubTotal float64         `json:"subtotal"`
 }
 
 type OrderResponse struct {

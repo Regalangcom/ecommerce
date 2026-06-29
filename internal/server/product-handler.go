@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/regalangcom/go-shop-api/internal/dto"
+	"github.com/regalangcom/go-shop-api/internal/services"
 	"github.com/regalangcom/go-shop-api/internal/utils"
 )
 
@@ -145,4 +146,35 @@ func (s *Server) deleteProduct(c *gin.Context) {
 		return
 	}
 	utils.SuccessResponse(c, "Product deleted successfully", nil)
+}
+
+func (s *Server) uploadProductImage(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		utils.BadRequestResponse(c, "invalid product ID", err)
+		return
+	}
+
+	file, err := c.FormFile("image")
+	if err != nil {
+		utils.BadRequestResponse(c, "failed to get image file", err)
+		return
+	}
+
+	// uploadProvider := provider.NewLocalProvider(s.config.Upload.Path)
+	// uploadService := services.NewUploadService(uploadProvider)
+
+	url, err := s.uploadService.UploadProductImage(uint(id), file)
+	if err != nil {
+		utils.InternalServerErrorResponse(c, "failed to upload product image", err)
+		return
+	}
+
+	productService := services.NewProductService(s.db)
+	if err := productService.AddProductImage(uint(id), url, file.Filename); err != nil {
+		utils.InternalServerErrorResponse(c, "failed to add product image", err)
+		return
+	}
+
+	utils.SuccessResponse(c, "Product image uploaded successfully", map[string]string{"url": url})
 }

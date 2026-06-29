@@ -20,6 +20,8 @@ type Server struct {
 	authService    *services.AuthService
 	productService *services.ProductService
 	userService    *services.UserService
+	uploadService  *services.UploadService
+	cartService    *services.CartService
 }
 
 func New(cfg *config.Config,
@@ -28,6 +30,8 @@ func New(cfg *config.Config,
 	authService *services.AuthService,
 	productService *services.ProductService,
 	userService *services.UserService,
+	uploadService *services.UploadService,
+	cartService *services.CartService,
 ) *Server {
 	return &Server{
 		config:         cfg,
@@ -36,6 +40,8 @@ func New(cfg *config.Config,
 		authService:    authService,
 		productService: productService,
 		userService:    userService,
+		uploadService:  uploadService,
+		cartService:    cartService,
 	}
 }
 
@@ -49,6 +55,8 @@ func (s *Server) SetupRoute() *gin.Engine {
 
 	// define routes
 	r.GET("/health", s.healthCheck)
+
+	r.Static("/uploads", "./uploads")
 
 	// auth route
 	api := r.Group("/api/v1")
@@ -86,6 +94,16 @@ func (s *Server) SetupRoute() *gin.Engine {
 				productsRoute.POST("/", s.AdminMiddleware(), s.createProduct)
 				productsRoute.PUT("/:id", s.AdminMiddleware(), s.updateProduct)
 				productsRoute.DELETE("/:id", s.AdminMiddleware(), s.deleteProduct)
+				productsRoute.POST("/:id/images", s.AdminMiddleware(), s.uploadProductImage)
+			}
+
+			cart := protected.Group("/carts")
+			{
+				cartRoute := cart
+				cartRoute.GET("/", s.GetCart)
+				cartRoute.POST("/items", s.AddToCart)
+				cartRoute.PUT("/items/:id", s.UpdateToCart)
+				cartRoute.DELETE("items/:id", s.RemoveToCart)
 			}
 
 		}

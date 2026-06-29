@@ -1,0 +1,2 @@
+ALTER TABLE product_images
+ADD COLUMN IF NOT EXISTS alt_text TEXT;

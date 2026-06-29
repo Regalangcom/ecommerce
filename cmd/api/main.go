@@ -12,7 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/regalangcom/go-shop-api/internal/config"
 	"github.com/regalangcom/go-shop-api/internal/database"
+	"github.com/regalangcom/go-shop-api/internal/interfaces"
 	"github.com/regalangcom/go-shop-api/internal/logger"
+	"github.com/regalangcom/go-shop-api/internal/provider"
 	"github.com/regalangcom/go-shop-api/internal/server"
 	"github.com/regalangcom/go-shop-api/internal/services"
 )
@@ -43,8 +45,22 @@ func main() {
 	authService := services.NewAuthService(db, cfg)
 	productService := services.NewProductService(db)
 	userService := services.NewUserService(db)
+	cartService := services.NewCartService(db)
 
-	srv := server.New(cfg, db, &log, authService, productService, userService)
+	var uploadProvider interfaces.UploadProvider
+	if cfg.Upload.UploadProvider == "s3" {
+		p, err := provider.NewS3Provider(cfg)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to initialize s3 upload provider")
+		}
+		uploadProvider = p
+	} else {
+		uploadProvider = provider.NewLocalProvider(cfg.Upload.Path)
+	}
+	uploadService := services.NewUploadService(uploadProvider)
+
+	// !! server
+	srv := server.New(cfg, db, &log, authService, productService, userService, uploadService, cartService)
 	router := srv.SetupRoute()
 
 	httpServer := &http.Server{
@@ -55,13 +71,15 @@ func main() {
 	}
 
 	go func() {
-		log.Info().Msg(fmt.Sprintf("starting server on port %s", cfg.Server.Port))
+
+		log.Info().Str("port", cfg.Server.Port).Msg("starting http server")
+		// log.Info().Msg(fmt.Sprintf("starting server on port %s", cfg.Server.Port))
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal().Err(err).Msg("failed to start server")
 		}
 	}()
 
-	// create channel
+	// !! create channel
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit

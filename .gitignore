@@ -16,6 +16,9 @@ bin/
 # dependency directories
 vendor/
 
+# upload
+uploads/
+
 
 # go workspace variable
 go.work
@@ -45,4 +48,6 @@ uploads/
 
 # log
 
+# docker
+docker/docker-compose.yml
 *.log
